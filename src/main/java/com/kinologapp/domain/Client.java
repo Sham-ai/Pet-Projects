@@ -3,6 +3,15 @@ package com.kinologapp.domain;
 public class Client extends User {
 
     private String dogCardNumber; //номер карточки
+    private boolean isVip; // для расчета скидок
+
+    public boolean isVip() {
+        return isVip;
+    }
+
+    public void setVip(boolean vip) {
+        isVip = vip;
+    }
 
     public Client(long id, String firstName, String phoneNumber, String dogCardNumber) {
         super(id, firstName, phoneNumber);

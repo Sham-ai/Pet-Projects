@@ -44,6 +44,26 @@ public class Appointment {
         return status;
     }
 
+    public boolean confirmBooking() {
+        if(dateTime.isBefore(LocalDateTime.now())) {
+            System.out.println("Ошибка: Нельзя записаться на прошедшее время!");
+            return false;
+        }
+
+        int hour = dateTime.getHour();
+        //проверка на диапазон записи
+        if(hour < trainer.getStartWorkHour() || hour
+                >= trainer.getEndWorkHour()) {
+            System.out.println("Ошибка! Тренер отдыхает в " + hour + ":00. Запишитесь с "
+                    + trainer.getStartWorkHour() + " до " + trainer.getEndWorkHour());
+            return false;
+        }
+
+        this.status = AppointmentStatus.SCHEDULED;
+        System.out.println("Запись подтверждена на " + dateTime);
+        return true;
+    }
+
     public void setStatus(AppointmentStatus status) {
         this.status = status;
         if (status == AppointmentStatus.CANCELED) {
