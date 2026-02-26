@@ -1,4 +1,8 @@
-package com.kinologapp.domain;
+package com.kinologapp.model.appointment;
+import com.kinologapp.model.enums.AppointmentStatus;
+import com.kinologapp.model.entity.Client;
+import com.kinologapp.model.entity.Trainer;
+
 import java.time.LocalDateTime;
 
 public class Appointment {
@@ -14,6 +18,14 @@ public class Appointment {
         this.cancelReason = cancelReason;
         this.status = status;
         this.dateTime = dateTime;
+    }
+
+    // Удобный конструктор для новых записей
+    public Appointment(Client client, Trainer trainer, LocalDateTime dateTime) {
+        this.client = client;
+        this.trainer = trainer;
+        this.dateTime = dateTime;
+        this.status = AppointmentStatus.PENDING; // Статус по умолчанию
     }
 
     public Trainer getTrainer() {

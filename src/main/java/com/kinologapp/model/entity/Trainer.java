@@ -1,4 +1,4 @@
-package com.kinologapp.domain;
+package com.kinologapp.model.entity;
 
 public class Trainer extends User {
 
@@ -6,9 +6,11 @@ public class Trainer extends User {
     private int startWorkHour = 8;
     private int endWorkHour = 22;
 
-    public Trainer(long id, String firstName, String phoneNumber, int experienceYears) {
+    public Trainer(long id, String firstName, String phoneNumber, int experienceYears, int startWorkHour, int endWorkHour) {
         super(id, firstName, phoneNumber);
         this.experienceYears = experienceYears;
+        this.startWorkHour = startWorkHour;
+        this.endWorkHour = endWorkHour;
     }
 
     public int getStartWorkHour() {

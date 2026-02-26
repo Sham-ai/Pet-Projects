@@ -1,4 +1,4 @@
-package com.kinologapp.domain;
+package com.kinologapp.model.entity;
 
 public class Client extends User {
 

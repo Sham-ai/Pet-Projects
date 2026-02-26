@@ -1,4 +1,6 @@
-package com.kinologapp.domain;
+package com.kinologapp.model.content;
+import com.kinologapp.model.entity.Trainer;
+
 import java.time.LocalDate;
 public abstract class Content {
     private Trainer author; //Автор-кинолог

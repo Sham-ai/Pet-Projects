@@ -1,7 +1,7 @@
-package com.kinologapp.domain;
+package com.kinologapp.model.enums;
 
 public enum AppointmentStatus {
     SCHEDULED, // Запланирована
     CANCELED,  // Отменена
-    FINISHED   // Проведена
+    PENDING, FINISHED   // Проведена
 }

@@ -1,4 +1,4 @@
-package com.kinologapp.domain;
+package com.kinologapp.model.enums;
 
 public enum PaymentType {
     SINGLE_LESSON,

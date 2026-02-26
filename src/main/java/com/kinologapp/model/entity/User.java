@@ -1,5 +1,5 @@
-package com.kinologapp.domain;
-import java.time.LocalDate;
+package com.kinologapp.model.entity;
+import com.kinologapp.util.Notifiable;
 
 public abstract class User implements Notifiable {
     private long id;
