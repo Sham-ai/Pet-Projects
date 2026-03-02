@@ -1,22 +1,14 @@
 package com.kinologapp;
 
-import com.kinologapp.model.appointment.Appointment;
-import com.kinologapp.model.content.Article;
-import com.kinologapp.model.content.Content;
-import com.kinologapp.model.content.VideoLesson;
 import com.kinologapp.model.entity.Client;
-import com.kinologapp.model.entity.Trainer;
 import com.kinologapp.model.entity.User;
 import com.kinologapp.model.enums.PaymentType;
 import com.kinologapp.model.payment.Payment;
 import com.kinologapp.repository.DataStorage;
-import com.kinologapp.service.BookingService;
 import com.kinologapp.service.PaymentService;
 import com.kinologapp.service.StatisticsService;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
