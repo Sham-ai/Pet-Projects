@@ -6,11 +6,13 @@ import com.kinologapp.model.content.Content;
 import com.kinologapp.model.content.VideoLesson;
 import com.kinologapp.model.entity.Client;
 import com.kinologapp.model.entity.Trainer;
+import com.kinologapp.model.entity.User;
 import com.kinologapp.model.enums.PaymentType;
 import com.kinologapp.model.payment.Payment;
 import com.kinologapp.repository.DataStorage;
 import com.kinologapp.service.BookingService;
 import com.kinologapp.service.PaymentService;
+import com.kinologapp.service.StatisticsService;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,22 +20,46 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
+        // 1. Подготовка данных (Инициализация)
+        initTestData();
 
-            // 1. Создаем людей
-            Trainer alex = new Trainer(1, "Алексей", "8900...", 10, 9, 18);
-            Client ivan = new Client(2, "Иван", "8911...", "DOG-123");
+        // 2. Логика работы приложения
+        processClientPayments();
 
-            // 2. Работаем с бронированием
-            BookingService bookingService = new BookingService();
-            Appointment app = new Appointment(ivan, alex, LocalDateTime.of(2026, 3, 1, 14, 0));
-            bookingService.createBooking(app);
-
-            // 3. Работаем с оплатой
-            Payment p1 = new Payment(ivan, alex, new BigDecimal("5000.00"), PaymentType.PACKAGE);
-            PaymentService paymentService = new PaymentService();
-            paymentService.processPayment(p1);
-
-            // 4. Смотрим статистику
-            System.out.println("Всего платежей: " + DataStorage.getAllPayments().size());
-        }
+        // 3. Вывод аналитики (отчет)
+        showStatistics();
     }
+
+    private static void initTestData() {
+        System.out.println("--- Загрузка данных ---");
+        // Создаем системного пользователя (Клуб), который будет принимать деньги
+        User clubBase = new User(0L, "Главный офис Клуба", "+79000000000");
+
+        System.out.println("Система готова. Данные загружены.");
+    }
+
+    private static void processClientPayments() {
+        System.out.println("--- Работа с клиентами и оплатой ---");
+
+        // 1. Создаем клиента (sender)
+        Client ivan = new Client(1L, "Иван", "+79991234567", "DOG-555");
+        DataStorage.addClient(ivan);
+
+        // 2. Создаем получателя
+        User club = new User(0L, "Кинологический Клуб", "+79869249688");
+
+        // 3. Создаем сумму через BigDecimal
+        BigDecimal price = new BigDecimal("1500.00");
+
+        // 4. Формируем платеж
+        Payment payment = new Payment(ivan, club, price, PaymentType.PACKAGE);
+
+        // 5. Отправляем в сервис на обработку
+        PaymentService.processPayment(payment);
+    }
+
+    private static void showStatistics() {
+        System.out.println("\n--- Финансовые показатели ---");
+        StatisticsService.printFullReport();
+    }
+}

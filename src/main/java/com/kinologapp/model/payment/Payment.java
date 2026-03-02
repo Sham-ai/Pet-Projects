@@ -12,6 +12,11 @@ public class Payment {
     private User sender; //— кто платит (Клиент или другой Пользователь).
     private User receiver; //— кому платят (Тренер или Клуб).
     private BigDecimal amount; //— сумма платежа.
+
+    public PaymentType getType() {
+        return type;
+    }
+
     private PaymentType type; //— за что платим.
     private PaymentStatus status; //— текущее состояние.
     private LocalDateTime dateTime; //— когда прошел платеж
@@ -24,7 +29,7 @@ public class Payment {
         this.status = PaymentStatus.PENDING;
     }
 
-    // Геттеры (необходимы для доступа к private полям)
+    // Геттеры
     public PaymentStatus getStatus() { return status; }
     public BigDecimal getAmount() { return amount; }
 

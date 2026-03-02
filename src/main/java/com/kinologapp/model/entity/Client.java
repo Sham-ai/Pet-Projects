@@ -2,6 +2,10 @@ package com.kinologapp.model.entity;
 
 public class Client extends User {
 
+    public String getDogCardNumber() {
+        return dogCardNumber;
+    }
+
     private String dogCardNumber; //номер карточки
     private boolean isVip; // для расчета скидок
 

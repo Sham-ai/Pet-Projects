@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public class PaymentService {
 
-    public void processPayment(Payment payment) {
+    public static void processPayment(Payment payment) {
         //применяем скидку
         applyVipDiscount(payment);
 
@@ -23,7 +23,7 @@ public class PaymentService {
         System.out.println("PaymentService: Оплата обработана и сохранена в базу.");
     }
 
-    private void applyVipDiscount(Payment payment) {
+    private static void applyVipDiscount(Payment payment) {
         if(payment.getSender() instanceof Client client && client.isVip()) {
             BigDecimal discount = payment.getAmount().multiply(new BigDecimal(0.10));
             payment.setAmount(payment.getAmount().subtract(discount));

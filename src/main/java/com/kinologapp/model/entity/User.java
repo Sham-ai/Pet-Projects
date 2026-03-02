@@ -1,7 +1,7 @@
 package com.kinologapp.model.entity;
 import com.kinologapp.util.Notifiable;
 
-public abstract class User implements Notifiable {
+public class User implements Notifiable {
     private long id;
     private String firstName;
     private String phoneNumber;
