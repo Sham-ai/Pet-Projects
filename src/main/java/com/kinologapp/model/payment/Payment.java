@@ -2,7 +2,6 @@ package com.kinologapp.model.payment;
 
 import com.kinologapp.model.enums.PaymentStatus;
 import com.kinologapp.model.enums.PaymentType;
-import com.kinologapp.model.entity.Client;
 import com.kinologapp.model.entity.User;
 
 import java.math.BigDecimal;
