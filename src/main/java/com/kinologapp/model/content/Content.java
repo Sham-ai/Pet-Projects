@@ -1,26 +1,42 @@
 package com.kinologapp.model.content;
-import com.kinologapp.model.entity.Trainer;
+
+import com.kinologapp.model.entity.User;
+import com.kinologapp.model.enums.Role;
 
 import java.time.LocalDate;
-public abstract class Content {
-    private Trainer author; //Автор-кинолог
-    private String title; // Название
-    private LocalDate publishDate; // Дата публикации
+import java.util.Objects;
 
-    public Content(Trainer author, String title, LocalDate publishDate) {
-        this.author = author;
-        this.title = title;
-        this.publishDate = publishDate;
+/**
+ * Базовый абстрактный класс контента.
+ * Автор — кинолог (TRAINER).
+ */
+public abstract class Content {
+
+    private final User author;
+    private final String title;
+    private final LocalDate publishDate;
+
+    public Content(User author, String title, LocalDate publishDate) {
+        this.author = Objects.requireNonNull(author, "author");
+        this.title = Objects.requireNonNull(title, "title");
+        this.publishDate = Objects.requireNonNull(publishDate, "publishDate");
+
+        if (!author.hasRole(Role.TRAINER)) {
+            throw new IllegalArgumentException("Content author must have TRAINER role");
+        }
     }
 
-    //Абстрактный метод: каждый наследник покажет контент по своему
     public abstract void display();
 
-    public Trainer getAuthor() {
+    public User getAuthor() {
         return author;
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public LocalDate getPublishDate() {
+        return publishDate;
     }
 }

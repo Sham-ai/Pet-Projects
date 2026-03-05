@@ -1,28 +1,32 @@
 package com.kinologapp.model.entity;
 
+/**
+ * Dog — питомец.
+ */
 public class Dog {
 
     private String name;
     private int age;
-    private String breed; //породa
-    private Client client;
+    private String breed;
+
+    private User owner;
 
     public Dog() {
-
     }
-    public Dog(String name, int age, String breed, Client client) {
+
+    public Dog(String name, int age, String breed, User owner) {
         this.name = name;
         this.age = age;
         this.breed = breed;
-        this.client = client;
+        this.owner = owner;
     }
 
-    public Client getClient() {
-        return client;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public String getName() {
@@ -48,8 +52,4 @@ public class Dog {
     public void setBreed(String breed) {
         this.breed = breed;
     }
-
-
-
 }
-

@@ -1,13 +1,11 @@
 package com.kinologapp;
 
 import com.kinologapp.model.appointment.Appointment;
-import com.kinologapp.model.content.Article;
-import com.kinologapp.model.content.Content;
-import com.kinologapp.model.content.VideoLesson;
-import com.kinologapp.model.entity.Client;
-import com.kinologapp.model.entity.Trainer;
+import com.kinologapp.model.entity.ClientProfile;
+import com.kinologapp.model.entity.TrainerProfile;
 import com.kinologapp.model.entity.User;
 import com.kinologapp.model.enums.PaymentType;
+import com.kinologapp.model.enums.Role;
 import com.kinologapp.model.payment.Payment;
 import com.kinologapp.repository.DataStorage;
 import com.kinologapp.service.BookingService;
@@ -15,50 +13,41 @@ import com.kinologapp.service.PaymentService;
 import com.kinologapp.service.StatisticsService;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        // 1. Подготовка данных (Инициализация)
-        initTestData();
-
-        // 2. Логика работы приложения
-        processClientPayments();
-
-        // 3. Вывод аналитики (отчет)
-        showStatistics();
-    }
-
-    private static void initTestData() {
         System.out.println("--- Загрузка данных ---");
-        // Создаем системного пользователя (Клуб), который будет принимать деньги
-        User clubBase = new User(0L, "Главный офис Клуба", "+79000000000");
 
-        System.out.println("Система готова. Данные загружены.");
-    }
+        User club = new User(0L, "Кинологический Клуб", "+79000000000");
+        club.addRole(Role.DIRECTOR);
+        DataStorage.addUser(club);
 
-    private static void processClientPayments() {
-        System.out.println("--- Работа с клиентами и оплатой ---");
+        User trainer = new User(2L, "Анна", "+79990000002");
+        trainer.enableTrainer(new TrainerProfile(5, 9, 18));
+        DataStorage.addUser(trainer);
 
-        // 1. Создаем клиента (sender)
-        Client ivan = new Client(1L, "Иван", "+79991234567", "DOG-555");
-        DataStorage.addClient(ivan);
+        User client = new User(1L, "Иван", "+79991234567");
+        client.enableClient(new ClientProfile(true)); // VIP
+        DataStorage.addUser(client);
 
-        // 2. Создаем получателя
-        User club = new User(0L, "Кинологический Клуб", "+79869249688");
+        System.out.println("Система готова. Данные загружены.\n");
 
-        // 3. Создаем сумму через BigDecimal
-        BigDecimal price = new BigDecimal("1500.00");
+        BookingService bookingService = new BookingService();
+        LocalDateTime tomorrow10 = LocalDateTime.now()
+                .plusDays(1)
+                .withHour(10).withMinute(0).withSecond(0).withNano(0);
 
-        // 4. Формируем платеж
-        Payment payment = new Payment(ivan, club, price, PaymentType.PACKAGE);
+        Appointment appointment = new Appointment(client, trainer, tomorrow10);
+        bookingService.createBooking(appointment);
 
-        // 5. Отправляем в сервис на обработку
-        PaymentService.processPayment(payment);
-    }
+        System.out.println("\n--- Оплата занятия ---");
+        BigDecimal price = new BigDecimal("1000.00");
+        Payment payment = new Payment(client, trainer, price, PaymentType.SINGLE_LESSON);
 
-    private static void showStatistics() {
+        PaymentService paymentService = new PaymentService();
+        paymentService.processPayment(payment);
+
         System.out.println("\n--- Финансовые показатели ---");
         StatisticsService.printFullReport();
     }

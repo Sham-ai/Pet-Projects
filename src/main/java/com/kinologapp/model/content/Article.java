@@ -1,15 +1,15 @@
 package com.kinologapp.model.content;
 
-import com.kinologapp.model.entity.Trainer;
+import com.kinologapp.model.entity.User;
 
 import java.time.LocalDate;
 
-public class Article extends Content{
+public class Article extends Content {
 
-    private String text;
-    private boolean hasPhotos;
+    private final String text;
+    private final boolean hasPhotos;
 
-    public Article(Trainer author, String title, LocalDate publishDate,
+    public Article(User author, String title, LocalDate publishDate,
                    String text, boolean hasPhotos) {
         super(author, title, publishDate);
         this.hasPhotos = hasPhotos;
@@ -20,12 +20,12 @@ public class Article extends Content{
     public void display() {
         System.out.println("Читаем статью: " + getTitle());
         System.out.println("Автор: " + getAuthor().getFirstName());
-        //Проверка на наличие фото
+
         if (hasPhotos) {
             System.out.println("[В статье есть фотоиллюстрации]");
         }
+
         System.out.println("Текст: "
                 + text.substring(0, Math.min(text.length(), 50)) + "...");
     }
-
 }

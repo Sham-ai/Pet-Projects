@@ -1,16 +1,29 @@
 package com.kinologapp.model.entity;
 
-public class Trainer extends User {
+/**
+ * TrainerProfile — данные роли TRAINER.
+ * Рабочее время живёт здесь (а не в Appointment).
+ */
+public class TrainerProfile {
 
     private int experienceYears;
-    private int startWorkHour = 8;
-    private int endWorkHour = 22;
 
-    public Trainer(long id, String firstName, String phoneNumber, int experienceYears, int startWorkHour, int endWorkHour) {
-        super(id, firstName, phoneNumber);
+    // пока просто часы 0..23
+    private int startWorkHour;
+    private int endWorkHour;
+
+    public TrainerProfile(int experienceYears, int startWorkHour, int endWorkHour) {
         this.experienceYears = experienceYears;
         this.startWorkHour = startWorkHour;
         this.endWorkHour = endWorkHour;
+    }
+
+    public int getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(int experienceYears) {
+        this.experienceYears = experienceYears;
     }
 
     public int getStartWorkHour() {
@@ -27,10 +40,5 @@ public class Trainer extends User {
 
     public void setEndWorkHour(int endWorkHour) {
         this.endWorkHour = endWorkHour;
-    }
-
-    @Override
-    public void introduce(){
-        System.out.println("Я кинолог " + getFirstName() + ". Стаж работы: " + experienceYears + " лет");
     }
 }
