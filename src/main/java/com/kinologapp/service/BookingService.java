@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 public class BookingService {
 
+    //логика бронирования
     public boolean createBooking(Appointment appointment) {
         LocalDateTime sessionTime = appointment.getDateTime();
 
@@ -38,6 +39,7 @@ public class BookingService {
         return true;
     }
 
+    //отмена занятия клиентом
     public boolean cancelByClient(Appointment appointment, LocalDateTime now, String reason) {
         LocalDateTime sessionTime = appointment.getDateTime();
 
@@ -64,5 +66,36 @@ public class BookingService {
         appointment.cancel(reason);
         System.out.println("Тренер отменил занятие. Причина: " +  reason);
         return true;
+    }
+
+    //перенос занятия тренером
+    public Appointment rescheduleByTrainer(Appointment oldAppointment, LocalDateTime newDateTime, String reason) {
+
+        //1) Нельзя переносить отмененное занятие
+        if (oldAppointment.getStatus() == AppointmentStatus.CANCELED) {
+            System.out.println("Нельзя переносить отмененное занятие.");
+            return null;
+        }
+
+        //2)Нельзя переносить в прошлое
+        if (newDateTime.isBefore(LocalDateTime.now())) {
+            System.out.println("Указанное время раньше текущей даты! Невозможно перенести занятие.");
+            return null;
+        }
+
+        //3)Создаем новую запись
+        Appointment newAppointment = new Appointment(oldAppointment.getClient(),oldAppointment.getTrainer(),newDateTime);
+
+        //4)Проверяем, что новое время подходит
+        boolean booked = createBooking(newAppointment);
+        if (!booked) {
+            System.out.println("Перенос не выполнен: новое время недоступно.");
+            return null;
+        }
+
+        //5)Отменяем старую запись(фиксируем причину)
+        oldAppointment.cancel("Перенос: " + reason);
+        System.out.println("Занятие перенесено. Причниа: " + reason);
+        return newAppointment;
     }
 }

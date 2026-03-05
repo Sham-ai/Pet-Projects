@@ -4,6 +4,7 @@ import com.kinologapp.model.appointment.Appointment;
 import com.kinologapp.model.entity.ClientProfile;
 import com.kinologapp.model.entity.TrainerProfile;
 import com.kinologapp.model.entity.User;
+import com.kinologapp.model.enums.AppointmentStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -72,6 +73,78 @@ class BookingServiceTest {
 
         assertTrue(ok);
         assertEquals("Заболел", appointment.getCancelReason());
+    }
+
+    // Успешный перенос на подходящее время
+    @Test
+    void trainerCanRescheduleToValidTime() {
+        BookingService service = new BookingService();
+
+        User trainer = new User(2, "Trainer", "456");
+        trainer.enableTrainer(new TrainerProfile(5, 9, 18));
+
+        User client = new User(1, "Client", "123");
+        client.enableClient(new ClientProfile(false));
+
+        LocalDateTime original = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
+        Appointment oldAppt = new Appointment(client, trainer, original);
+        assertTrue(service.createBooking(oldAppt));
+
+        LocalDateTime newTime = LocalDateTime.now().plusDays(3).withHour(11).withMinute(0);
+        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, "Клиент попросил другое время.");
+
+        assertNotNull(newAppt);
+        assertEquals(AppointmentStatus.CANCELED, oldAppt.getStatus());
+        assertTrue(oldAppt.getCancelReason().startsWith("Перенос: "));
+        assertEquals(AppointmentStatus.SCHEDULED, newAppt.getStatus());
+        assertEquals(newTime, newAppt.getDateTime());
+    }
+
+    //Нельзя перенести на время вне рабочих часов
+    @Test
+    void trainerCannotRescheduleOutsideWorkHours() {
+        BookingService service = new BookingService();
+
+        User trainer = new User(2, "Trainer", "456");
+        trainer.enableTrainer(new TrainerProfile(5, 9, 18));
+
+        User client = new User(1, "Client", "123");
+        client.enableClient(new ClientProfile(false));
+
+        LocalDateTime original = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
+        Appointment oldAppt = new Appointment(client, trainer, original);
+        assertTrue(service.createBooking(oldAppt));
+
+        // 20:00 вне графика
+        LocalDateTime badTime = LocalDateTime.now().plusDays(3).withHour(20).withMinute(0);
+        Appointment newAppt = service.rescheduleByTrainer(oldAppt, badTime, "Хочу вечером");
+
+        assertNotNull(newAppt);
+        assertEquals(AppointmentStatus.SCHEDULED, oldAppt.getStatus());
+    }
+
+    // Нельзя перенести отменённое занятие
+    @Test
+    void trainerCannotRescheduleCanceledAppointment() {
+        BookingService service = new BookingService();
+
+        User trainer = new User(2, "Trainer", "456");
+        trainer.enableTrainer(new TrainerProfile(5, 9, 18));
+
+        User client = new User(1, "Client", "123");
+        client.enableClient(new ClientProfile(false));
+
+        LocalDateTime original = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
+        Appointment oldAppt = new Appointment(client, trainer, original);
+        assertTrue(service.createBooking(oldAppt));
+
+        //отменили
+        service.cancelByTrainer(oldAppt,"Отмена");
+
+        LocalDateTime newTime =  LocalDateTime.now().plusDays(3).withHour(11).withMinute(0);
+        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, "Попробуем перенести");
+
+        assertNotNull(newAppt);
     }
 }
 
