@@ -20,6 +20,8 @@ public class Appointment {
     private AppointmentStatus status;
     private String cancelReason;
 
+    private boolean silent = false;
+
     public Appointment(User client, User trainer, LocalDateTime dateTime) {
         this.client = Objects.requireNonNull(client, "client");
         this.trainer = Objects.requireNonNull(trainer, "trainer");
@@ -64,10 +66,18 @@ public class Appointment {
     public void setStatus(AppointmentStatus status) {
         this.status = status;
 
-        if (status == AppointmentStatus.CANCELED) {
+        if (status == AppointmentStatus.CANCELED && !silent) {
             System.out.println("Внимание! Занятие отменено. Причина: " + cancelReason);
             trainer.sendNotification("Занятие отменено! Причина: " + cancelReason);
             client.sendNotification("Ваше занятие отменено. Причина: " + cancelReason);
         }
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 }

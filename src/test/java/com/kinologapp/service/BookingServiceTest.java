@@ -15,6 +15,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookingServiceTest {
 
+    //убираем лишние уведомления от тестов и
+    // делаем проверку на NULL на всякий случай если влепить не туда(чтобы не падал NPE)
+    private Appointment silent(Appointment appt) {
+        if (appt != null) {
+            appt.setSilent(true);
+        }
+        return appt;
+    }
+
     //Клиент создаёт заявку (>=24ч) — успех
     @Test
     void clientCanCreateRescheduleRequestMoreThan24Before() {
@@ -27,7 +36,7 @@ class BookingServiceTest {
         client.enableClient(new ClientProfile(false));
 
         LocalDateTime now = LocalDateTime.of(2026,3,5,10,0);
-        Appointment appt = new Appointment(client,trainer,now.plusHours(30));
+        Appointment appt = silent(new Appointment(client,trainer,now.plusHours(30)));
         assertTrue(service.createBooking(appt,now));
 
         RescheduleRequest req = service.createRescheduleRequestByClient(appt,
@@ -52,7 +61,7 @@ class BookingServiceTest {
         client.enableClient(new ClientProfile(false));
 
         LocalDateTime now = LocalDateTime.of(2026,3,5,10,0);
-        Appointment appt = new Appointment(client,trainer,now.plusHours(6));
+        Appointment appt = silent(new Appointment(client,trainer,now.plusHours(6)));
         assertTrue(service.createBooking(appt,now));
 
         RescheduleRequest req = service.createRescheduleRequestByClient(
@@ -77,7 +86,7 @@ class BookingServiceTest {
         client.enableClient(new ClientProfile(false));
 
         LocalDateTime now = LocalDateTime.of(2026,3,5,10,0);
-        Appointment appt = new Appointment(client,trainer,now.plusHours(30));
+        Appointment appt = silent(new Appointment(client,trainer,now.plusHours(30)));
         assertTrue(service.createBooking(appt,now));
         RescheduleRequest req = service.createRescheduleRequestByClient(
                 appt,
@@ -114,7 +123,7 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.of(2026,3,5,10,0);
         LocalDateTime session = now.plusHours(30);
 
-        Appointment appointment = new Appointment(client,trainer,session);
+        Appointment appointment = silent(new Appointment(client,trainer,session));
         boolean ok = service.cancelByClient(appointment, now, "Не могу прийти");
 
         assertTrue(ok);
@@ -134,7 +143,7 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.of(2026,3,5,10,0);
         LocalDateTime session = now.plusHours(10);
 
-        Appointment appointment = new Appointment(client,trainer,session);
+        Appointment appointment = silent(new Appointment(client,trainer,session));
 
         boolean ok = service.cancelByClient(appointment, now, "Передумал");
 
@@ -155,7 +164,7 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.of(2026,3,5,10,0);
         LocalDateTime session = now.plusHours(1);
 
-        Appointment appointment = new Appointment(client,trainer,session);
+        Appointment appointment = silent(new Appointment(client,trainer,session));
 
         boolean ok = service.cancelByTrainer(appointment, "Заболел");
 
@@ -177,11 +186,11 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.of(2026, 3, 5, 10, 0);
 
         LocalDateTime original = now.plusDays(2).withHour(10).withMinute(0);
-        Appointment oldAppt = new Appointment(client, trainer, original);
+        Appointment oldAppt = silent(new Appointment(client, trainer, original));
         assertTrue(service.createBooking(oldAppt, now));
 
         LocalDateTime newTime = now.plusDays(3).withHour(11).withMinute(0);
-        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, now, "Клиент попросил другое время.");
+        Appointment newAppt = silent(service.rescheduleByTrainer(oldAppt, newTime, now, "Клиент попросил другое время."));
 
         assertNotNull(newAppt);
         assertEquals(AppointmentStatus.CANCELED, oldAppt.getStatus());
@@ -204,7 +213,7 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.of(2026, 3, 5, 10, 0);
 
         LocalDateTime original = now.plusDays(2).withHour(10).withMinute(0);
-        Appointment oldAppt = new Appointment(client, trainer, original);
+        Appointment oldAppt = silent(new Appointment(client, trainer, original));
         assertTrue(service.createBooking(oldAppt, now));
 
         // 20:00 вне графика
@@ -231,7 +240,7 @@ class BookingServiceTest {
         LocalDateTime now = LocalDateTime.of(2026, 3, 5, 10, 0);
 
         LocalDateTime original = now.plusDays(2).withHour(10).withMinute(0);
-        Appointment oldAppt = new Appointment(client, trainer, original);
+        Appointment oldAppt = silent(new Appointment(client, trainer, original));
         assertTrue(service.createBooking(oldAppt, now));
 
         // отменили
