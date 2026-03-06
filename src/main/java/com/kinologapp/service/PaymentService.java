@@ -5,10 +5,15 @@ import com.kinologapp.model.enums.PaymentStatus;
 import com.kinologapp.model.payment.Payment;
 import com.kinologapp.repository.DataStorage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class PaymentService {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
     public void processPayment(Payment payment) {
         applyVipDiscount(payment);
@@ -18,7 +23,7 @@ public class PaymentService {
 
         DataStorage.addPayment(payment);
 
-        System.out.println("PaymentService: Оплата обработана и сохранена в базу.");
+        log.warn("PaymentService: Оплата обработана и сохранена в базу.");
     }
 
     private void applyVipDiscount(Payment payment) {
@@ -30,7 +35,7 @@ public class PaymentService {
             BigDecimal discount = payment.getAmount().multiply(discountRate);
             payment.setAmount(payment.getAmount().subtract(discount));
 
-            System.out.println("PaymentService: Применена скидка 10% для VIP-клиента.");
+            log.warn("PaymentService: Применена скидка 10% для VIP-клиента.");
         }
     }
 }

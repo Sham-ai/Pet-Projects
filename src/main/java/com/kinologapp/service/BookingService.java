@@ -7,11 +7,15 @@ import com.kinologapp.model.entity.User;
 import com.kinologapp.model.enums.AppointmentStatus;
 import com.kinologapp.model.enums.Role;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class BookingService {
+
+    private static final Logger log =  LoggerFactory.getLogger(BookingService.class);
 
     private long requestIdSeq = 1L;
 
@@ -26,7 +30,7 @@ public class BookingService {
         // для заявки оставляем то же правило
         long hoursLeft = java.time.Duration.between(now, appointment.getDateTime()).toHours();
         if (hoursLeft < 24) {
-            System.out.println("Клиент не может запрашивать перенос менее чем за 24 часа до занятия.");
+            log.warn("Клиент не может запрашивать перенос менее чем за 24 часа до занятия.");
             return null;
         }
 
@@ -61,6 +65,7 @@ public class BookingService {
         if (newAppointment == null){
             //если перенос не удался (вне графика/прошлое/и т.д.)
             request.reject("Cannot reschedule: " + decisionComment);
+            return null;
         }
 
         request.approve(decisionComment);
@@ -85,13 +90,13 @@ public class BookingService {
         LocalDateTime sessionTime = appointment.getDateTime();
 
         if (sessionTime.isBefore(now)) {
-            System.out.println("Ошибка бронирования: Нельзя осуществить запись задним числом!");
+            log.warn("Ошибка бронирования: Нельзя осуществить запись задним числом!");
             return false;
         }
 
         TrainerProfile trainerProfile = appointment.getTrainer().getTrainerProfile();
         if (trainerProfile == null) {
-            System.out.println("Ошибка: у выбранного тренера не заполнен TrainerProfile (рабочие часы неизвестны)");
+            log.warn("Ошибка: у выбранного тренера не заполнен TrainerProfile (рабочие часы неизвестны)");
             return false;
         }
 
@@ -100,12 +105,12 @@ public class BookingService {
         int end = trainerProfile.getEndWorkHour();
 
         if (hour < start || hour >= end) {
-            System.out.println("Ошибка: Тренер работает только с " + start + ":00 до " + end + ":00");
+            log.warn("Ошибка: Тренер работает только с " + start + ":00 до " + end + ":00");
             return false;
         }
 
         appointment.setStatus(AppointmentStatus.SCHEDULED);
-        System.out.println("Запись подтверждена на " + sessionTime);
+        log.warn("Запись подтверждена на " + sessionTime);
         return true;
     }
 
@@ -119,26 +124,26 @@ public class BookingService {
 
         //если занятие уже прошло - отменять нельзя
         if (sessionTime.isBefore(now)) {
-            System.out.println("Нельзя отменить прошедшее занятие.");
+            log.warn("Нельзя отменить прошедшее занятие.");
             return false;
         }
 
         long hoursLeft = Duration.between(now, sessionTime).toHours();
 
         if(hoursLeft < 24) {
-            System.out.println("Клиент не может отменить занятие менее чем за 24 часа.");
+            log.warn("Клиент не может отменить занятие менее чем за 24 часа.");
             return false;
         }
 
         appointment.cancel(reason);
-        System.out.println("Клиент отменил занятие. Причина: " + reason);
+        log.warn("Клиент отменил занятие. Причина: " + reason);
         return true;
     }
 
     //отмена тренером
     public boolean cancelByTrainer(Appointment appointment, String reason) {
         appointment.cancel(reason);
-        System.out.println("Тренер отменил занятие. Причина: " +  reason);
+        log.warn("Тренер отменил занятие. Причина: " +  reason);
         return true;
     }
 
@@ -150,13 +155,13 @@ public class BookingService {
 
         //1) Нельзя переносить отмененное занятие
         if (oldAppointment.getStatus() == AppointmentStatus.CANCELED) {
-            System.out.println("Нельзя переносить отмененное занятие.");
+            log.warn("Нельзя переносить отмененное занятие.");
             return null;
         }
 
         //2)Нельзя переносить в прошлое
         if (newDateTime.isBefore(now)) {
-            System.out.println("Нельзя перенести занятие в прошлое.");
+            log.warn("Нельзя перенести занятие в прошлое.");
             return null;
         }
 
@@ -166,13 +171,13 @@ public class BookingService {
         //4)Проверяем, что новое время подходит
         boolean booked = createBooking(newAppointment, now);
         if (!booked) {
-            System.out.println("Перенос не выполнен: новое время недоступно.");
+            log.warn("Перенос не выполнен: новое время недоступно.");
             return null;
         }
 
         //5)Отменяем старую запись(фиксируем причину)
         oldAppointment.cancel("Перенос: " + reason);
-        System.out.println("Занятие перенесено. Причина: " + reason);
+        log.warn("Занятие перенесено. Причина: " + reason);
         return newAppointment;
     }
 }
