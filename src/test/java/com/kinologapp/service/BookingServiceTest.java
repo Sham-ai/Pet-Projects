@@ -86,12 +86,14 @@ class BookingServiceTest {
         User client = new User(1, "Client", "123");
         client.enableClient(new ClientProfile(false));
 
-        LocalDateTime original = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
-        Appointment oldAppt = new Appointment(client, trainer, original);
-        assertTrue(service.createBooking(oldAppt));
+        LocalDateTime now = LocalDateTime.of(2026, 3, 5, 10, 0);
 
-        LocalDateTime newTime = LocalDateTime.now().plusDays(3).withHour(11).withMinute(0);
-        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, "Клиент попросил другое время.");
+        LocalDateTime original = now.plusDays(2).withHour(10).withMinute(0);
+        Appointment oldAppt = new Appointment(client, trainer, original);
+        assertTrue(service.createBooking(oldAppt, now));
+
+        LocalDateTime newTime = now.plusDays(3).withHour(11).withMinute(0);
+        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, now, "Клиент попросил другое время.");
 
         assertNotNull(newAppt);
         assertEquals(AppointmentStatus.CANCELED, oldAppt.getStatus());
@@ -111,15 +113,19 @@ class BookingServiceTest {
         User client = new User(1, "Client", "123");
         client.enableClient(new ClientProfile(false));
 
-        LocalDateTime original = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
+        LocalDateTime now = LocalDateTime.of(2026, 3, 5, 10, 0);
+
+        LocalDateTime original = now.plusDays(2).withHour(10).withMinute(0);
         Appointment oldAppt = new Appointment(client, trainer, original);
-        assertTrue(service.createBooking(oldAppt));
+        assertTrue(service.createBooking(oldAppt, now));
 
         // 20:00 вне графика
-        LocalDateTime badTime = LocalDateTime.now().plusDays(3).withHour(20).withMinute(0);
-        Appointment newAppt = service.rescheduleByTrainer(oldAppt, badTime, "Хочу вечером");
+        LocalDateTime badTime = now.plusDays(3).withHour(20).withMinute(0);
+        Appointment newAppt = service.rescheduleByTrainer(oldAppt, badTime, now, "Хочу вечером");
 
-        assertNotNull(newAppt);
+        // перенос должен НЕ удаться
+        assertNull(newAppt);
+        // старое занятие остаётся активным
         assertEquals(AppointmentStatus.SCHEDULED, oldAppt.getStatus());
     }
 
@@ -134,17 +140,20 @@ class BookingServiceTest {
         User client = new User(1, "Client", "123");
         client.enableClient(new ClientProfile(false));
 
-        LocalDateTime original = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
+        LocalDateTime now = LocalDateTime.of(2026, 3, 5, 10, 0);
+
+        LocalDateTime original = now.plusDays(2).withHour(10).withMinute(0);
         Appointment oldAppt = new Appointment(client, trainer, original);
-        assertTrue(service.createBooking(oldAppt));
+        assertTrue(service.createBooking(oldAppt, now));
 
-        //отменили
-        service.cancelByTrainer(oldAppt,"Отмена");
+        // отменили
+        service.cancelByTrainer(oldAppt, "Отмена");
 
-        LocalDateTime newTime =  LocalDateTime.now().plusDays(3).withHour(11).withMinute(0);
-        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, "Попробуем перенести");
+        LocalDateTime newTime = now.plusDays(3).withHour(11).withMinute(0);
+        Appointment newAppt = service.rescheduleByTrainer(oldAppt, newTime, now, "Попробуем перенести");
 
-        assertNotNull(newAppt);
+        // перенос должен НЕ удаться
+        assertNull(newAppt);
     }
 }
 
