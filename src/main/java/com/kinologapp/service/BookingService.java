@@ -1,14 +1,84 @@
 package com.kinologapp.service;
 
 import com.kinologapp.model.appointment.Appointment;
+import com.kinologapp.model.appointment.RescheduleRequest;
 import com.kinologapp.model.entity.TrainerProfile;
+import com.kinologapp.model.entity.User;
 import com.kinologapp.model.enums.AppointmentStatus;
+import com.kinologapp.model.enums.Role;
 
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class BookingService {
+
+    private long requestIdSeq = 1L;
+
+    //создание заявки клиентом
+    public RescheduleRequest createRescheduleRequestByClient(Appointment appointment,
+                                                             User client,
+                                                             LocalDateTime desiredDateTime,
+                                                             LocalDateTime now,
+                                                             String comment) {
+        // клиент не переносит сам — только просит,
+        // но у него уже есть правило 24 часа на отмену;
+        // для заявки оставляем то же правило
+        long hoursLeft = java.time.Duration.between(now, appointment.getDateTime()).toHours();
+        if (hoursLeft < 24) {
+            System.out.println("Клиент не может запрашивать перенос менее чем за 24 часа до занятия.");
+            return null;
+        }
+
+        return new RescheduleRequest(requestIdSeq++,
+                appointment,
+                client,
+                desiredDateTime,
+                comment,
+                now
+        );
+    }
+
+    //одобрение заявки тренером
+    public Appointment approveRescheduleRequestByTrainer(RescheduleRequest request,
+                                                         User trainer,
+                                                         LocalDateTime now,
+                                                         String decisionComment) {
+        if (!trainer.hasRole(Role.TRAINER)){
+            throw new IllegalArgumentException("Only TRAINER can approve requests");
+        }
+        if (request.getAppointment().getTrainer().getId() != trainer.getId()){
+            throw new IllegalArgumentException("Trainer can approve only own appointments");
+        }
+
+        Appointment newAppointment = rescheduleByTrainer(
+                request.getAppointment(),
+                request.getDesiredDateTime(),
+                now,
+                "Approved request #" + request.getId()
+        );
+
+        if (newAppointment == null){
+            //если перенос не удался (вне графика/прошлое/и т.д.)
+            request.reject("Cannot reschedule: " + decisionComment);
+        }
+
+        request.approve(decisionComment);
+        return newAppointment;
+    }
+
+    //Тренер отклоняет заявку
+    public void rejectRescheduleRequestByTrainer(RescheduleRequest request,
+                                                 User trainer,
+                                                 String decisionComment) {
+        if (!trainer.hasRole(Role.TRAINER)){
+            throw new IllegalArgumentException("Only TRAINER can reject requests");
+        }
+        if (request.getAppointment().getTrainer().getId() != trainer.getId()){
+            throw new IllegalArgumentException("Trainer can reject only own appointments");
+        }
+        request.reject(decisionComment);
+    }
 
     //логика бронирования
     public boolean createBooking(Appointment appointment, LocalDateTime now) {
@@ -39,8 +109,8 @@ public class BookingService {
         return true;
     }
 
-    public boolean createBooking(Appointment appointment) {
-        return createBooking(appointment, LocalDateTime.now());
+    public void createBooking(Appointment appointment) {
+        createBooking(appointment, LocalDateTime.now());
     }
 
     //отмена занятия клиентом
